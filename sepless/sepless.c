@@ -472,7 +472,7 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
 
     if (version <= 3789){
 
-    	printf("[*] Skipping patch AppleSEPKeyStore notified volume uuid - lock state\n");
+    	printf("[*] Skipping patch: AppleSEPKeyStore notified volume uuid - lock state\n");
 
     }   
     else {
@@ -496,7 +496,7 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
 }
     if (version <= 3789){
 
-    	printf("[*] Skipping patch AppleSEPKeyStore can't find AppleSEPManager string\n");
+    	printf("[*] Skipping patch: AppleSEPKeyStore can't find AppleSEPManager string\n");
     	printf("%s: quitting...\n", __FUNCTION__);
     	return 0;
 
