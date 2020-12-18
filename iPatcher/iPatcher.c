@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
 
     FILE* fp = fopen(in, "rb");
      if (!fp) {
-     	printf("[-] Failed to open kernel\n");
+     	printf("[-] Failed to open iBoot image\n");
      	return -1;
      }
 
