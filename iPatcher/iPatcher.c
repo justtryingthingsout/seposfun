@@ -13,13 +13,14 @@ void *str_stuff;
 addr_t beg_func;
 void *iboot_vers;
 char *args = NULL;
+void *lolz;
 
 
 bool fail = false;
 
 int iBoot_check(void* buf, size_t len) {
      
-     void *lolz = buf + 0x280;
+     lolz = buf + 0x280;
      str_stuff =  buf + 0x285;
 
      void *coco = buf + 0x160;
@@ -68,12 +69,26 @@ int get_rsa_patch(void* buf, size_t len) {
 	printf("getting %s()\n", __FUNCTION__);
 
 
-     str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
+     if (strcmp(lolz, "iBoot-2817.0.0.1.2") == 0 || strcmp(lolz, "iBoot-2817.1.41.1.1") == 0 || strcmp(lolz, "iBoot-2817.1.55") == 0 || strcmp(lolz, "iBoot-2817.1.73") ==  0 || strcmp(lolz, "iBoot-2817.1.89") == 0 || strcmp(lolz, "iBoot-2817.1.93") == 0 || strcmp(lolz, "iBoot-2817.1.93") == 0 || strcmp(lolz, "iBoot-2817.1.94") == 0 || strcmp(lolz, "iBoot-2817.10.26") == 0 || strcmp(lolz, "iBoot-2817.10.29") == 0 || strcmp(lolz, "iBoot-2817.10.34") == 0 || strcmp(lolz, "iBoot-2817.10.34") == 0 || strcmp(lolz, "iBoot-2817.10.35") == 0 || strcmp(lolz, "iBoot-2817.20.21") == 0 || strcmp(lolz, "iBoot-2817.20.24") == 0 || strcmp(lolz, "iBoot-2817.20.26") == 0 || strcmp(lolz, "iBoot-2817.40.91") == 0 || strcmp(lolz, "iBoot-2817.40.97") == 0 || strcmp(lolz, "iBoot-2817.40.102") == 0 || strcmp(lolz, "iBoot-2817.40.104") == 0 || strcmp(lolz, "iBoot-2817.40.106") == 0 || strcmp(lolz, "iBoot-2817.40.106") == 0 || strcmp(lolz, "iBoot-2817.50.1") == 0 || strcmp(lolz, "iBoot-2817.50.2") == 0 || strcmp(lolz, "iBoot-2817.50.3") ==  0 || strcmp(lolz, "iBoot-2817.60.1") == 0 || strcmp(lolz, "iBoot-2817.60.2") == 0)
+    {
+      str_stuff = memmem(buf,len,"\x08\x69\x88\x72", 0x4);
      if (!str_stuff) {
      	printf("[-] Failed to find MOVK W8, #0x4348\n");
      	fail = true;
      	return -1;
      }
+    }
+
+    else {
+
+        str_stuff = memmem(buf,len,"\x0A\x69\x88\x72", 0x4);
+     if (!str_stuff) {
+     	printf("[-] Failed to find MOVK W10, #0x4348\n");
+     	fail = true;
+     	return -1;
+     }
+
+    }
 
      beg_func = (addr_t)GET_OFFSET(len, str_stuff);
 
