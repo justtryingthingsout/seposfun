@@ -77,3 +77,6 @@ Now open `kernelcache_patched.img4` in hex editor and change `krnl` to `rkrn`
 You're done. Make sure to make IMG4 from IM4P devicetree with tag `rdtr`
 
 Don't forget to replace /usr/libexec/keybagd with keybagd_bypass
+
+# Thanks to
+xerub - patchfinder64
