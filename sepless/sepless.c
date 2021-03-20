@@ -18,6 +18,7 @@ int version;
 void* xnu;
 
 int findandpatch(void* kbuf, size_t klen, void* string, void* searchstr) {
+    //printf("klen: %zu\nkbuf: %p\ncurrent str: %s\nsearch term: %s\n", klen, kbuf, (char *)string, (char *)searchstr);
     str_stuff = memmem(kbuf, klen, searchstr, strlen(searchstr) - 1);
     if (!str_stuff) {
         printf("[-] Failed to find %s string\n", string);
@@ -34,7 +35,7 @@ int findandpatch(void* kbuf, size_t klen, void* string, void* searchstr) {
     return 0;
 }
 
-int get_sep_patch(void* kbuf,size_t klen) {
+int get_sep_patch(void* kbuf, size_t klen) {
     void* strings[] = {
         "AppleSEPFirmware initFromMemory",
         "AppleSEPManager setFirmwareBytes",
@@ -45,7 +46,12 @@ int get_sep_patch(void* kbuf,size_t klen) {
         "void AppleSEPFirmware::_initFromMemory",
         "IOexit(AppleSEPManager::setFirmwareBytes",
         "void AppleSEPBooter::_bootAction",
-        "IOexit(AppleSEPBooter::bootSEP"
+        "IOexit(AppleSEPBooter::bootSEP",
+    };
+    void* searchalt[] = {
+        "bool AppleSEPFirmware::_initFromMemory",
+        "IOReturn AppleSEPManager::setFirmwareBytes",
+        "IOReturn AppleSEPBooter::bootSEP"
     };
     if (dev_kernel == true) {
     	xnu = memmem(kbuf,klen,"root:xnu_",9);
@@ -56,10 +62,19 @@ int get_sep_patch(void* kbuf,size_t klen) {
     }
     if (version <= 4570) {
         printf("getting %s()\n", __FUNCTION__);
-        findandpatch(kbuf, klen, strings[0], search[0]);
-        findandpatch(kbuf, klen, strings[1], search[1]);
+        if (findandpatch(kbuf, klen, strings[0], search[0]) != 0) {
+            printf("Trying again with another search term\n");
+            findandpatch(kbuf, klen, strings[0], searchalt[0]);
+        }
+        if (findandpatch(kbuf, klen, strings[1], search[1]) != 0) {
+            printf("Trying again with another search term\n");
+            findandpatch(kbuf, klen, strings[1], searchalt[1]);
+        }
         findandpatch(kbuf, klen, strings[2], search[2]);
-        findandpatch(kbuf, klen, strings[3], search[3]);
+        if (findandpatch(kbuf, klen, strings[3], search[3]) != 0) {
+            printf("Trying again with another search term\n");
+            findandpatch(kbuf, klen, strings[3], searchalt[2]);
+        }
         printf("%s: quitting...\n", __FUNCTION__);
     }
     return 0;
@@ -73,28 +88,6 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
         xnu = memmem(kbuf,klen,"root:xnu-",9);
         version = atoi(xnu+9);
     }
-    void* strings[] = {
-        "AppleSEPKeyStore failed to prepare output memory descriptor",
-        "AppleKeyStore starting",
-        "AppleSEPKeyStore failed init _workLoop",
-        "AppleSEPKeyStore _sep_enabled",
-        "AppleSEPKeyStore volume keybags",
-        "AppleSEPKeyStore mapping volume without a cookie",
-        "AppleSEPKeyStore notified volume uuid locked",
-        "AppleSEPKeyStore notified volume uuid lock state",
-        "AppleSEPKeyStore 4d",
-        "AppleSEPKeyStore -",
-        "AppleSEPKeyStore vfs notif failed",
-        "AppleKeyStore sending lock change",
-        "AppleKeyStore stash expired",
-        "AppleSEPKeyStore keybagd not registered",
-        "AppleSEPKeyStore failed to notify system keybag updation",
-        "AppleSEPKeyStore failed to notify tickle_backup_notify_por",
-        "AppleSEPKeyStore volume cookie mismatch",
-        "AppleSEPKeyStore unmapped uuid",
-        "AppleSEPKeyStore mapped uuid",
-        "AppleSEPKeyStore can't find AppleSEPManager"
-    };
     void* search[] = {
         "AppleSEPKeyStore::%s: Failed to prepare output memory descriptor.",
         "AppleKeyStore starting",
@@ -118,8 +111,60 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
         "AppleSEPKeyStore::%s: ::sep_endpoint() can't find AppleSEPManager",
         "AppleSEPKeyStore::%s: Can't find AppleSEPManager"
     };
+    void* strings[] = {
+        "AppleSEPKeyStore failed to prepare output memory descriptor",
+        "AppleKeyStore starting",
+        "AppleSEPKeyStore failed init _workLoop",
+        "AppleSEPKeyStore _sep_enabled",
+        "AppleSEPKeyStore volume keybags",
+        "AppleSEPKeyStore mapping volume without a cookie",
+        "AppleSEPKeyStore notified volume uuid locked",
+        "AppleSEPKeyStore notified volume uuid lock state",
+        "AppleSEPKeyStore 4d",
+        "AppleSEPKeyStore -",
+        "AppleSEPKeyStore vfs notif failed",
+        "AppleKeyStore sending lock change",
+        "AppleKeyStore stash expired",
+        "AppleSEPKeyStore keybagd not registered",
+        "AppleSEPKeyStore failed to notify system keybag updation",
+        "AppleSEPKeyStore failed to notify tickle_backup_notify_por",
+        "AppleSEPKeyStore volume cookie mismatch",
+        "AppleSEPKeyStore unmapped uuid",
+        "AppleSEPKeyStore mapped uuid",
+        "AppleSEPKeyStore can't find AppleSEPManager"
+    };
+    void* strings8[] = {
+        "AppleKeyStore starting",
+        "Failed to initialize _workLoop",
+        "AppleKeyStore:Sending lock change %d",
+        "AppleKeyStore:Sending category unlock status with %d",
+        "failed to notify %d",
+        "failed to notify system keybag updation %d",
+        "AppleSEPKeyStore::sep_endpoint() can't find AppleSEPManager",
+        "AppleSEPKeyStore::sep_endpoint() failed to initialize",
+        "", //seperates search terms and strings
+        "Failed to init _workLoop",
+        "AppleKeyStore sending category unlock status",
+        "Failed to notify",
+        "Failed to notify system kbag update",
+        "AppleSEPKeyStore sep_endpoint() can't find AppleSEPManager",
+        "AppleSEPKeyStore sep_endpoint() failed to init"
+    };
     if (version <= 4570) {
         printf("getting %s()\n", __FUNCTION__);
+        if ((2783 >= version) && (version <= 2784)) {
+            printf("iOS 8 detected\n");
+            findandpatch(kbuf, klen, strings[1], strings8[0]);
+            findandpatch(kbuf, klen, strings8[9], strings8[1]);
+            findandpatch(kbuf, klen, strings[11], strings8[2]);
+            findandpatch(kbuf, klen, strings8[10], strings8[3]);
+            findandpatch(kbuf, klen, strings8[11], strings8[4]);
+            findandpatch(kbuf, klen, strings8[12], strings8[5]);
+            findandpatch(kbuf, klen, strings8[13], strings8[6]);
+            findandpatch(kbuf, klen, strings8[14], strings8[7]);
+            printf("%s: quitting...\n", __FUNCTION__);
+            return 0;
+        }
         findandpatch(kbuf, klen, strings[0], search[0]);
         findandpatch(kbuf, klen, strings[1], search[1]);
         findandpatch(kbuf, klen, strings[2], search[2]);
@@ -184,7 +229,7 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
 int main(int argc, char* argv[]) {
    if(argc < 3) {
    	    printf("sepless - tool to patch SEP and AppleKeyStore functions in kernel by @exploit3dguy\n");
-        printf("Usage: kcache.raw kcache.pwn [-d]\n");
+        printf("Usage: %s kcache.raw kcache.pwn [-d]\n", argv[0]);
         printf("       -d for dev kernels\n");
         return 0;
     }
