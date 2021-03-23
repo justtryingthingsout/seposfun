@@ -204,13 +204,13 @@ int get_applekeystore_patch(void *kbuf, size_t klen) {
             str_stuff = memmem(kbuf,klen,search[19],strlen(search[19]));
             if (!str_stuff) {
                 printf("[-] Failed to find %s string\n", strings[19]);
-                return -1;
+                
             } 
         } else {
             str_stuff = memmem(kbuf,klen,search[20],strlen(search[20]));
             if (!str_stuff) {
                 printf("[-] Failed to find %s string\n", strings[19]);
-                return -1;
+                
             }
         }
     
