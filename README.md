@@ -1,5 +1,3 @@
-# MADE BY PLX, EXPLOIT3D (MD) HAS NOTHING TO DO WITH THAT CRINGE... 
-
 # seposfun
 Incomplete project for SEP bypass for downgrades/dual-boots. We decided to abandon this project and release it as it is since we have blackbird SEPROM Exploit which is much more powerful. This should allow you to boot up device without SEPOS however iOS Support is incomplete. This was tested on several NonUI builds and it seems it will only work on it. There is a possibility that older iOS versions will boot fine, feel free to make pull requests. 
 # Tools
